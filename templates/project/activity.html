@@ -1,0 +1,82 @@
+{% extends 'page_layout.html' %}
+
+{% block contant %}    
+    <div class="main_block">
+    	<!-- block title -->
+        {% include "include/title_block_dropdown.html" with title=page_name %}
+	    <!-- end block title -->
+
+
+        {% if activities_list %}
+
+        <!-- table -->
+        <div class="container">
+	    	<div class="row">
+	    		<div class="col-md-12">
+	    			<div id="wrapper"></div>
+	    		</div>
+	    	</div>
+	    </div>
+        <!-- end table -->
+
+        {% else %}
+
+        <div class="container">
+	    	<div class="row">
+	    		<div class="col-md-12">
+	    			<div class="alert alert-info text-center" role="alert" >
+                        No have activities yet.
+                    </div>
+	    		</div>
+	    	</div>
+	    </div>
+
+
+        {% endif %}
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+    <script>
+        new gridjs.Grid({
+            columns: [
+            	"#", "Name", "Note", "Date", "Created by"
+            ],
+            sort: true,
+            search: true,
+            pagination: {
+				        enabled: true,
+				        limit: 10
+				    },
+            data: {{ activities_list|safe }}
+
+            {% comment %} 
+                data: [
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "10.08.2024 20:43", "Name surname"],
+                ]  
+            {% endcomment %}
+        }).render(document.getElementById("wrapper"));
+    </script>
+{% endblock %}

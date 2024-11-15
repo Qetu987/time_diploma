@@ -1,0 +1,47 @@
+{% if user_data.first_name and user_data.last_name %}
+<p class="username">
+    {{user_data.first_name}} {{user_data.last_name|slice:":1"}}
+</p>
+<div class="status">
+    <p>Owner</p>
+</div>
+<div class="dropdown" style="width:0;">
+    <div class="profile_photo" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <p>{{user_data.first_name|slice:":1"}}{{user_data.last_name|slice:":1"}}</p>
+    </div>
+    <ul class="dropdown-menu">
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+
+            <li><button type="submit" class="dropdown-item" href="#">Log out</button></li>
+        </form>
+      </ul>
+</div>
+
+{% else %}
+<p class="username">
+    {{user_data.username}}
+</p>
+<div class="status">
+    <p>Owner</p>
+</div>
+
+
+<div class="dropdown" style="width:0;">
+    <div class="profile_photo" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <p>{{user_data.username|slice:":2"}}</p>
+    </div>
+  
+    <ul class="dropdown-menu">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+
+            <li><button type="submit" class="dropdown-item" href="#">Log out</button></li>
+        </form>
+    </ul>
+</div>
+
+{% endif %}
+
+

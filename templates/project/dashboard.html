@@ -1,0 +1,69 @@
+{% extends 'page_layout.html' %}
+
+{% block contant %}   
+
+    {% if project_list %}
+        <!-- metrics -->
+        <div class="main_block">
+            <!-- block title -->
+            {% include "include/title_block_without_actions.html" with title='Metrics' %}
+            <!-- end block title -->
+
+            <!-- block metrics placeholder -->
+            <div class="metrics">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="xl_chart"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="sm_chart"></div>
+                            <div class="sm_chart"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="sm_chart"></div>
+                            <div class="sm_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end block metrics placeholder -->
+        </div>
+        <!-- end metrics -->
+    {% endif %}
+
+    <!-- recent_projects -->
+    <div class="main_block">
+    	<!-- block title -->
+        {% include "include/title_block_with_creating_project.html" with title='Recent projects' %}
+	    <!-- end block title -->
+
+        {% if project_list %}
+            <!-- block recent -->
+            <div class="recent_projects">
+                <div class="container">
+                    <div class="row">
+
+                        {% for project in project_list %}
+                            {% include "include/recent_project.html" with project=project %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- end block recent -->
+        {% else %}
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-info text-center" role="alert" >
+                            No projects yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        {% endif %}
+    </div>
+    <!-- end recent_projects -->
+{% endblock %}

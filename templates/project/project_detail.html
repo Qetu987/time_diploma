@@ -1,0 +1,80 @@
+{% extends 'page_layout.html' %}
+
+{% block contant %}
+    <div class="main_block">
+    	
+    	<!-- block title -->
+    	{% include "include/title_block_with_edit_project_and_new_task.html" with title=page_name|title project=project %}
+	    <!-- end block title -->
+
+	    <div class="container">
+	    	<div class="row">
+	    		<div class="col-md-12">
+	    			<div id="wrapper"></div>
+	    		</div>
+	    	</div>
+	    </div>
+
+	</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+    <script>
+        new gridjs.Grid({
+            columns: [
+            	"#", "Name", "Note", "Created by", 
+                "Start", "Duration", "Total Price", 
+            	{
+	                name: "Action",
+	                formatter: (cell, row) => {
+	                	const link = row.cells[6].data;
+	                	if (link){
+	                    return gridjs.html(`
+	                    	<a href="${link}" class="btn-base btn-gray table">
+	                    		<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+									<path fill-rule="evenodd" clip-rule="evenodd" d="M13.9997 2.5C13.9997 2.36739 13.947 2.24021 13.8532 2.14645C13.7594 2.05268 13.6323 2 13.4997 2H7.49965C7.36705 2 7.23987 2.05268 7.1461 2.14645C7.05233 2.24021 6.99965 2.36739 6.99965 2.5C6.99965 2.63261 7.05233 2.75979 7.1461 2.85355C7.23987 2.94732 7.36705 3 7.49965 3H12.2927L2.14565 13.146C2.09917 13.1925 2.06229 13.2477 2.03713 13.3084C2.01197 13.3692 1.99902 13.4343 1.99902 13.5C1.99902 13.5657 2.01197 13.6308 2.03713 13.6916C2.06229 13.7523 2.09917 13.8075 2.14565 13.854C2.19214 13.9005 2.24733 13.9374 2.30807 13.9625C2.36881 13.9877 2.43391 14.0006 2.49966 14.0006C2.5654 14.0006 2.6305 13.9877 2.69124 13.9625C2.75198 13.9374 2.80717 13.9005 2.85366 13.854L12.9997 3.707V8.5C12.9997 8.63261 13.0523 8.75979 13.1461 8.85355C13.2399 8.94732 13.367 9 13.4997 9C13.6323 9 13.7594 8.94732 13.8532 8.85355C13.947 8.75979 13.9997 8.63261 13.9997 8.5V2.5Z"/>
+								</svg>
+	                    	</a>
+	                    	`);
+	                	}
+	                }
+	            }
+            ],
+            sort: true,
+            search: true,
+            pagination: {
+				        enabled: true,
+				        limit: 10
+				    },
+            data: {{ task_list|safe }}
+            {% comment %}
+                data: [
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"],
+                    ["1", "Task name", "Lorem ipsum dolor sit amet", "Name surname", "10.08.2024 20:43", "10.08.2024 24:43", "$ 80.32", "https://example.com/john"]
+                ] 
+            {% endcomment %}
+        }).render(document.getElementById("wrapper"));
+    </script>
+{% endblock %}

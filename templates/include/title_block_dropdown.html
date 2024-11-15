@@ -1,0 +1,26 @@
+<div class="block_title">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="name_block">
+                    <p>{{ title }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="block_action">
+                    <div class="dropdown" style="width: auto;">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ project.name|slice:":10" }}
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for pr in projects %}
+                                <li><a class="dropdown-item" href="{% url 'project_activity' project_id=pr.id %}">{{ pr.name|slice:":10" }}</a></li>
+                            {% endfor %}
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
