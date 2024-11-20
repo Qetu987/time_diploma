@@ -1,0 +1,170 @@
+<div class="d-flex justify-content-between mb-3">
+    <div class="report_chart">
+        <canvas id="workloadByDayChart"></canvas>
+    </div>
+    <div class="report_chart">
+        <canvas id="timeDistributionChart"></canvas>
+    </div>
+    <div class="report_chart">
+        <canvas id="paymentByEmployeeChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const predefinedColors = [
+        "rgba(255, 99, 132, 0.5)",
+        "rgba(54, 162, 235, 0.5)",
+        "rgba(255, 206, 86, 0.5)",
+        "rgba(75, 192, 192, 0.5)",
+        "rgba(153, 102, 255, 0.5)",
+        "rgba(255, 159, 64, 0.5)"
+    ];
+
+    const predefinedBorders = [
+        "rgba(255, 99, 132, 1)",
+        "rgba(54, 162, 235, 1)",
+        "rgba(255, 206, 86, 1)",
+        "rgba(75, 192, 192, 1)",
+        "rgba(153, 102, 255, 1)",
+        "rgba(255, 159, 64, 1)"
+    ];
+
+    const chartData = {{ chart_data|safe }};
+    {% comment %} const chartData = {
+        workloadByDay: {
+            labels: ["2024-11-01", "2024-11-02", "2024-11-03", "2024-11-04"],
+            data: [8, 10, 5, 7]
+        },
+        timeDistribution: {
+            labels: ["Employee A", "Employee B", "Employee C"],
+            data: [120, 85, 95]
+        },
+        paymentByEmployee: {
+            labels: ["Employee A", "Employee B", "Employee C"],
+            data: [500, 700, 400]
+        }
+    }; {% endcomment %}
+
+    document.addEventListener("DOMContentLoaded", () => {
+        new Chart(document.getElementById("workloadByDayChart"), {
+            type: "line",
+            data: {
+                labels: chartData.workloadByDay.labels,
+                datasets: [{
+                    label: "Workload (hours)",
+                    data: chartData.workloadByDay.data,
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Workload by Day",
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                layout: {
+                    padding: 16
+                }
+            }
+        });
+
+        new Chart(document.getElementById("timeDistributionChart"), {
+            type: "doughnut",
+            data: {
+                labels: chartData.timeDistribution.labels,
+                datasets: [{
+                    data: chartData.timeDistribution.data,
+                    backgroundColor: predefinedColors,
+                    borderColor: predefinedBorders,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Time Distribution by Participants",
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} hrs`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("paymentByEmployeeChart"), {
+            type: "bar",
+            data: {
+                labels: chartData.paymentByEmployee.labels,
+                datasets: [{
+                    label: "Payment ($)",
+                    data: chartData.paymentByEmployee.data,
+                    backgroundColor: chartData.paymentByEmployee.labels.map(
+                        (_, index) => predefinedColors[index % predefinedColors.length]
+                    ),
+                    borderColor: chartData.paymentByEmployee.labels.map(
+                        (_, index) => predefinedBorders[index % predefinedBorders.length]
+                    ),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Payment to Each Employee",
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>

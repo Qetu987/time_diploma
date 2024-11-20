@@ -7,13 +7,29 @@
     	{% include "include/title_block_with_edit_project_and_new_task.html" with title=page_name|title project=project %}
 	    <!-- end block title -->
 
-	    <div class="container">
-	    	<div class="row">
-	    		<div class="col-md-12">
-	    			<div id="wrapper"></div>
-	    		</div>
-	    	</div>
-	    </div>
+        {% if task_list %}
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="wrapper"></div>
+                    </div>
+                </div>
+            </div>
+        
+        {% else %}
+            
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-info text-center" role="alert" >
+                            No activities yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
 
 	</div>
 

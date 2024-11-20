@@ -1,0 +1,384 @@
+<!-- block metrics placeholder -->
+<div class="metrics">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="xl_chart">
+                    <canvas id="tasksByDayChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="sm_chart">
+                    <canvas id="avgTaskTimeChart"></canvas>
+                </div>
+                <div class="sm_chart">
+                    <canvas id="costByProjectChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="sm_chart">
+                    <canvas id="taskDistributionChart"></canvas>
+                </div>
+                <div class="sm_chart">
+                    <canvas id="hoursByProjectChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end block metrics placeholder -->
+
+
+
+
+<script>
+    const predefinedColors = [
+        "rgba(255, 99, 132, 0.5)",
+        "rgba(255, 159, 64, 0.5)",
+        "rgba(255, 205, 86, 0.5)",
+        "rgba(75, 192, 192, 0.5)",
+        "rgba(54, 162, 235, 0.5)",
+        "rgba(153, 102, 255, 0.5)"
+    ];
+
+    const predefinedBorders = [
+        "rgba(255, 99, 132, 1)",
+        "rgba(255, 159, 64, 1)",
+        "rgba(255, 205, 86, 1)",
+        "rgba(75, 192, 192, 1)",
+        "rgba(54, 162, 235, 1)",
+        "rgba(153, 102, 255, 1)"
+    ];
+
+    const chartData = {{ chart_data|safe }};
+
+    {% comment %} const chartData = {
+        tasksByDay: {
+            labels: ["2024-11-10", "2024-11-11", "2024-11-12", "2024-11-13"],
+            data: [12, 15, 9, 18]
+        },
+        avgTaskTime: {
+            labels: ["Project A", "Project B", "Project C"],
+            data: [3.5, 4.2, 2.8]
+        },
+        costByProject: {
+            labels: ["Project A", "Project B", "Project C"],
+            data: [500, 750, 300]
+        },
+        taskDistribution: {
+            labels: ["Project A", "Project B", "Project C"],
+            data: [20, 15, 25]
+        },
+        hoursByProject: {
+            labels: ["Project A", "Project B", "Project C"],
+            data: [120, 85, 95]
+        }
+    }; {% endcomment %}
+
+    document.addEventListener("DOMContentLoaded", () => {
+        new Chart(document.getElementById("tasksByDayChart"), {
+            type: "line",
+            data: {
+                labels: chartData.tasksByDay.labels,
+                datasets: [{
+                    label: "Tasks Completed By Day",
+                    data: chartData.tasksByDay.data,
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 16,
+                        right: 16,
+                        bottom: 16,
+                        left: 16
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: "Tasks Completed Over Time",
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            }
+        });
+
+        // График 2: Среднее время выполнения задач
+        new Chart(document.getElementById("avgTaskTimeChart"), {
+            type: "bar",
+            data: {
+                labels: chartData.avgTaskTime.labels,
+                datasets: [{
+                    label: "Average Task Time (hrs)",
+                    data: chartData.avgTaskTime.data,
+                    backgroundColor: chartData.avgTaskTime.data.map(
+                        (_, index) => predefinedColors[index % predefinedColors.length]
+                    ),
+                    borderColor: chartData.avgTaskTime.data.map(
+                        (_, index) => predefinedBorders[index % predefinedBorders.length]
+                    ),
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 20,
+                            padding: 10,
+                            generateLabels: function (chart) {
+                                return chart.data.labels.map((label, index) => ({
+                                    text: label,
+                                    fillStyle: predefinedColors[index % predefinedColors.length],
+                                    strokeStyle: predefinedBorders[index % predefinedBorders.length],
+                                    lineWidth: 1,
+                                }));
+                            },
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Average Task Time by Project",
+                        font: {
+                            size: 16,
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                            },
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // График 3: Стоимость задач по проектам
+        new Chart(document.getElementById("costByProjectChart"), {
+            type: "doughnut",
+            data: {
+                labels: chartData.costByProject.labels,
+                datasets: [{
+                    data: chartData.costByProject.data,
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+                    borderColor: "#ffffff",
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Payment for project tasks",
+                        font: {
+                            size: 16,
+                            weight: "bold"
+                        },
+                        padding: {
+                            top: -5,
+                            bottom: 12
+                        },
+                        align: "center",
+                        color: "#333"
+                    },
+                    legend: {
+                        display: true,
+                        position: "left",
+                        labels: {
+                            boxWidth: 20,
+                            padding: 10,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: $${value}`;
+                            }
+                        }
+                    }
+                },
+                cutout: "50%",
+                layout: {
+                    padding: {
+                        top: 20,
+                        bottom: 20
+                    }
+                }
+            }
+        });
+        
+
+        // График 4: Распределение задач по проектам
+        new Chart(document.getElementById("taskDistributionChart"), {
+            type: "polarArea",
+            data: {
+                labels: chartData.taskDistribution.labels,
+                datasets: [{
+                    data: chartData.taskDistribution.data,
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+                    borderColor: "#ffffff",
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Task Distribution by Projects",
+                        font: {
+                            size: 16,
+                            weight: "bold"
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 20
+                        },
+                        align: "center",
+                        color: "#333"
+                    },
+                    legend: {
+                        display: true,
+                        position: "left",
+                        labels: {
+                            boxWidth: 20,
+                            padding: 10,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: ${value} tasks`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            backdropColor: "transparent",
+                            color: "#000",
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: "#ddd"
+                        }
+                    }
+                }
+            }
+        });
+
+        // График 5: Часы работы над проектами
+        new Chart(document.getElementById("hoursByProjectChart"), {
+            type: "bar",
+            data: {
+                labels: chartData.hoursByProject.labels,
+                datasets: [
+                    {
+                        label: "Hours Worked",
+                        data: chartData.hoursByProject.data,
+                        backgroundColor: chartData.hoursByProject.labels.map(
+                            (_, index) => predefinedColors[index % predefinedColors.length]
+                        ),
+                        borderColor: chartData.hoursByProject.labels.map(
+                            (_, index) => predefinedBorders[index % predefinedBorders.length]
+                        ),
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 20,
+                            padding: 10,
+                            generateLabels: function (chart) {
+                                return chart.data.labels.map((label, index) => ({
+                                    text: label,
+                                    fillStyle: predefinedColors[index % predefinedColors.length],
+                                    strokeStyle: predefinedBorders[index % predefinedBorders.length],
+                                    lineWidth: 1,
+                                }));
+                            },
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: "Hours Worked by Project",
+                        font: {
+                            size: 16,
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        stacked: false,
+                        ticks: {
+                            font: {
+                                size: 12,
+                            },
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        
+
+
+    });
+</script>

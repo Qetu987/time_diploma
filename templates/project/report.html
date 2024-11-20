@@ -6,70 +6,67 @@
         {% include "include/title_block_dropdown.html" with title=page_name %}
 	    <!-- end block title -->
 
-        <div class="container">
-	    	<div class="row">
-	    		<div class="col-md-9">
-	    			<div class="report bg-white border p-3">
-	    				<div class="d-flex justify-content-between align-items-center">
-	    					<h6>Project Name</h6>
+  
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="report bg-white border p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6>{{ project.name|slice:":10" }}</h6>
 
-	    					<p>23.09.2024 / 23.09.2024 </p>
-	    				</div>
-	    				<hr>
-
-	    				<div class="d-flex justify-content-between mb-3">
-	    					<div class="report_chart"></div>
-	    					<div class="report_chart"></div>
-	    					<div class="report_chart"></div>
-	    				</div>
-
-
-	    				<div class="alert alert-success d-flex justify-content-between align-items-center" role="alert">
-							  <p>Amount summary</p>
-							  <h3>$ 1884.87</h3>
-							</div>
-
-							<div id="wrapper"></div>
-
-	    			</div>
-	    		</div>
-
-	    		<div class="col-md-3">
-	    			<div class="report_filter bg-white border p-3 rounded position-sticky end-0" style="top: 64px;">
-                        <form method="get">
-                            <h4>Report settings</h4>
-
-                            <div class="my-3">
-                                <label for="assign_to" class="form-label">Assignee</label>
-                                <select class="form-select" id="assign_to" name="assign_to">
-                                    <option value="">All</option>
-                                    
-                                    {% if project.owner %}
-                                        <option value="{{ project.owner.id }}">{{ project.owner.username }} (Owner)</option>
-                                    {% endif %}
-
-                                    {% for member in project.team_members.all %}
-                                        <option value="{{ member.user.id }}">{{ member.user.username }}</option>
-                                    {% endfor %}
-                                </select>
+                                <p>23.09.2024 / 23.09.2024 </p>
                             </div>
+                            <hr>
 
-                            <div class="my-3">
-                                <label for="start_date" class="form-label">Date start</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date">
-                            </div>
+                            {% include "include/charts_report.html" %}
 
-                            <div class="my-3">
-                                <label for="end_date" class="form-label">Date end</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date">
-                            </div>
 
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </form>
-	    			</div>
-	    		</div>
-	    	</div>
-	    </div>
+                            <div class="alert alert-success d-flex justify-content-between align-items-center" role="alert">
+                                <p>Amount summary</p>
+                                <h3>$ {{ amount_summary }}</h3>
+                                </div>
+
+                                <div id="wrapper"></div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="report_filter bg-white border p-3 rounded position-sticky end-0" style="top: 64px;">
+                            <form method="get">
+                                <h4>Report settings</h4>
+
+                                <div class="my-3">
+                                    <label for="assign_to" class="form-label">Assignee</label>
+                                    <select class="form-select" id="assign_to" name="assign_to">
+                                        <option value="">All</option>
+                                        
+                                        {% if project.owner %}
+                                            <option value="{{ project.owner.id }}">{{ project.owner.username }} (Owner)</option>
+                                        {% endif %}
+
+                                        {% for member in project.team_members.all %}
+                                            <option value="{{ member.user.id }}">{{ member.user.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="my-3">
+                                    <label for="start_date" class="form-label">Date start</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date">
+                                </div>
+
+                                <div class="my-3">
+                                    <label for="end_date" class="form-label">Date end</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
        
     </div>
 

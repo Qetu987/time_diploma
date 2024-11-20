@@ -9,25 +9,7 @@
             {% include "include/title_block_without_actions.html" with title='Metrics' %}
             <!-- end block title -->
 
-            <!-- block metrics placeholder -->
-            <div class="metrics">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="xl_chart"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="sm_chart"></div>
-                            <div class="sm_chart"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="sm_chart"></div>
-                            <div class="sm_chart"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- end block metrics placeholder -->
+            {% include "include/charts.html" %}
         </div>
         <!-- end metrics -->
     {% endif %}

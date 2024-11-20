@@ -5,9 +5,10 @@ from django.contrib.auth.models import AnonymousUser
 from project.forms import ProjectForm, ProjectForm, TaskForm, AddTeamMemberForm
 from project.models import Project, TeamMember, Task, Activity
 from user.models import User
-from datetime import datetime
-from django.db.models import Sum
-from django.db.models import Q
+from decimal import Decimal
+from datetime import datetime, timedelta
+from django.utils.timezone import now
+from django.db.models import Sum, Q, Count, F, Avg
 from urllib.parse import urlparse
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponseNotFound, JsonResponse
@@ -79,15 +80,149 @@ class DashboardView(BasicDataView):
             projects_list.append(project_data)
             
         return projects_list
+    
+    def get_task_per_day(self, user):
+        today = now().date()
+        start_of_month = today.replace(day=1)
+
+        user_projects = Project.objects.filter(
+            Q(owner=user) | Q(team_members__user=user, team_members__is_active=True), 
+            is_active=True
+        ).distinct().order_by('-updated_at')
+
+        tasks_by_day = Task.objects.filter(
+            is_active=True,
+            project__in=user_projects,
+            date_for__gte=start_of_month
+        ).exclude(date_for__isnull=True).values('date_for__date').annotate(
+            count=Count('id')
+        ).order_by('date_for__date')
+
+        labels = []
+        data = []
+
+        date_range = [start_of_month + timedelta(days=x) for x in range((today - start_of_month).days + 1)]
+        tasks_by_day_dict = {entry['date_for__date']: entry['count'] for entry in tasks_by_day}
+        for date in date_range:
+            labels.append(date.strftime('%Y-%m-%d'))
+            data.append(tasks_by_day_dict.get(date, 0))
+
+        return {
+                "labels": labels,
+                "data": data
+            }
+    
+
+    def get_avg_task_time(self, user):
+        user_projects = Project.objects.filter(
+            Q(owner=user) | Q(team_members__user=user, team_members__is_active=True),
+            is_active=True
+        )
+
+        avg_task_time = (
+            Task.objects.filter(project__in=user_projects, is_active=True)
+            .values('project__name')
+            .annotate(avg_time=Avg('hours_count'))
+            .order_by('-avg_time')
+        )
+
+        top_projects = avg_task_time[:3]
+
+        avg_task_time_data = {
+            "labels": [entry['project__name'] for entry in top_projects],
+            "data": [round(entry['avg_time'], 2) for entry in top_projects],
+        }
+
+        return avg_task_time_data
+
+    def get_cost_by_project(self, user):
+        user_projects = Project.objects.filter(
+            Q(owner=user) | Q(team_members__user=user, team_members__is_active=True),
+            is_active=True
+        )
+
+        project_costs = (
+            Task.objects.filter(project__in=user_projects, is_active=True)
+            .values('project__name')
+            .annotate(total_cost=Sum('total_price'))
+            .order_by('-total_cost')
+        )
+
+        top_projects = project_costs[:3]
+
+        cost_by_project_data = {
+            "labels": [entry['project__name'] for entry in top_projects],
+            "data": [float(entry['total_cost']) if isinstance(entry['total_cost'], Decimal) else entry['total_cost'] for entry in top_projects],
+        }
+
+        return cost_by_project_data
+    
+
+    def get_task_distribution(self, user):
+        user_projects = Project.objects.filter(
+            Q(owner=user) | Q(team_members__user=user, team_members__is_active=True),
+            is_active=True
+        )
+
+        project_task_counts = (
+            Task.objects.filter(project__in=user_projects, is_active=True)
+            .values('project__name')
+            .annotate(task_count=Count('id'))
+            .order_by('-task_count')
+        )
+
+        top_projects = project_task_counts[:3]
+
+        task_distribution_data = {
+            "labels": [entry['project__name'] for entry in top_projects],
+            "data": [entry['task_count'] for entry in top_projects],
+        }
+
+        return task_distribution_data
+    
+    def get_hours_by_project(self, user):
+        user_projects = Project.objects.filter(
+            Q(owner=user) | Q(team_members__user=user, team_members__is_active=True),
+            is_active=True
+        )
+
+        project_hours = (
+            Task.objects.filter(project__in=user_projects, is_active=True)
+            .values('project__name')
+            .annotate(total_hours=Sum('hours_count'))
+            .order_by('-total_hours')
+        )
+
+        top_projects = project_hours[:3]
+
+        hours_by_project_data = {
+            "labels": [entry['project__name'] for entry in top_projects],
+            "data": [entry['total_hours'] for entry in top_projects],
+        }
+
+        return hours_by_project_data
+
+    
+    def get_chart_data(self, user):
+
+        return {
+            "tasksByDay": self.get_task_per_day(user),
+            "avgTaskTime": self.get_avg_task_time(user),
+            "costByProject": self.get_cost_by_project(user),
+            "taskDistribution": self.get_task_distribution(user),
+            "hoursByProject": self.get_hours_by_project(user),
+        }
 
 
     def get_data(self, request):
         context = super().get_data(request)
+        chart_data = self.get_chart_data(self.request.user)
 
         context.update({
             'page_name': self.page_name,
             'active_page': self.active_page,
-            'project_list': self.get_projects(self.request.user)
+            'project_list': self.get_projects(self.request.user),
+            'chart_data': chart_data,
         })
         
         return context
@@ -458,15 +593,66 @@ class ProjectReportView(BasicDataView):
                 str(task.total_price)
             ])
         return tasks_list
-    
-    def get_amount_summary(self, project, assigned_to=None):
-        if assigned_to:
-            tasks = Task.objects.filter(project=project, is_active=True, assigned_to=assigned_to).order_by('-date_for')
-        else:
-            tasks = Task.objects.filter(project=project, is_active=True).order_by('-date_for')
+
+    def get_amount_summary(self, tasks):
+    # Считаем сумму только для переданных задач
         total_amount = tasks.aggregate(total=Sum('total_price'))['total'] or 0
+        return float(total_amount)  # Преобразуем в float для передачи в JSON
+
+    def filter_tasks(self, project, start_date=None, end_date=None, assigned_to=None):
+        tasks = Task.objects.filter(project=project, is_active=True)
+
+        if assigned_to:
+            tasks = tasks.filter(assigned_to__id=assigned_to)
         
-        return total_amount
+        if start_date:
+            tasks = tasks.filter(date_for__gte=start_date)
+        
+        if end_date:
+            tasks = tasks.filter(date_for__lte=end_date)
+
+        return tasks
+    
+    def get_workload_by_day(self, tasks):
+        # Временная нагрузка по дням
+        tasks_by_day = (
+            tasks.values('date_for')
+            .annotate(hours_worked=Sum('hours_count'))
+            .order_by('date_for')
+        )
+        workload_data = {
+            "labels": [entry['date_for'].strftime('%Y-%m-%d') for entry in tasks_by_day if entry['date_for']],
+            "data": [entry['hours_worked'] for entry in tasks_by_day if entry['date_for']],
+        }
+        return workload_data
+
+    def get_time_distribution(self, tasks):
+        # Распределение времени работы по участникам
+        time_distribution = (
+            tasks.values('assigned_to__username')
+            .annotate(total_hours=Sum('hours_count'))
+            .order_by('-total_hours')
+        )
+        distribution_data = {
+            "labels": [entry['assigned_to__username'] or "Unassigned" for entry in time_distribution],
+            "data": [entry['total_hours'] for entry in time_distribution],
+        }
+        return distribution_data
+
+    def get_payment_by_employee(self, tasks):
+        # Оплата каждому сотруднику
+        payment_data = (
+            tasks.filter(is_billable=True)
+            .values('assigned_to__username')
+            .annotate(total_payment=Sum('total_price'))
+            .order_by('-total_payment')
+        )
+        payment_chart_data = {
+            "labels": [entry['assigned_to__username'] or "Unassigned" for entry in payment_data],
+            "data": [float(entry['total_payment'] or 0) for entry in payment_data],
+        }
+        return payment_chart_data
+
     
     def get_data(self, request, project_id):
         context = super().get_data(request)
@@ -480,7 +666,7 @@ class ProjectReportView(BasicDataView):
         end_date = request.GET.get('end_date')
         assigned_to = request.GET.get('assign_to')
 
-        print(self.get_task_list(project, start_date=start_date, end_date=end_date, assigned_to=assigned_to),)
+        tasks = self.filter_tasks(project, start_date=start_date, end_date=end_date, assigned_to=assigned_to)
 
         context.update({
             'page_name': self.page_name,
@@ -488,7 +674,12 @@ class ProjectReportView(BasicDataView):
             'project': project,
             'projects': self.get_projects(self.request.user),
             'task_list': self.get_task_list(project, start_date=start_date, end_date=end_date, assigned_to=assigned_to),
-            'Amount summary': self.get_amount_summary(project, assigned_to=assigned_to)
+            'amount_summary': self.get_amount_summary(tasks),
+            'chart_data': {
+                'workloadByDay': self.get_workload_by_day(tasks),
+                'timeDistribution': self.get_time_distribution(tasks),
+                'paymentByEmployee': self.get_payment_by_employee(tasks)
+            }
         })
         
         return context
