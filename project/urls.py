@@ -3,7 +3,7 @@ from project.views import (
     DashboardView, CreateProject, ProjectsListView, 
     ProjectDetailView, CreateTask, EditProjectView, 
     AddTeamMemberView, RemoveMemberView, ProjectActivityView,
-    ActivityView, ReportView, ProjectReportView
+    ActivityView, ReportView, ProjectReportView, DeleteTaskView
     )
 
 
@@ -23,4 +23,6 @@ urlpatterns = [
     
     path('<int:project_id>/add_team_member/', AddTeamMemberView.as_view(), name='add_member'),
     path('<int:project_id>/remove_member/<int:member_id>/', RemoveMemberView.as_view(), name='remove_member'),
+
+    path('<int:project_id>/tasks/<int:task_id>/delete/', DeleteTaskView.as_view(), name='delete_task'),
 ]

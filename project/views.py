@@ -327,7 +327,7 @@ class ProjectDetailView(BasicDataView):
         counter = 0
         for task in tasks:
             counter += 1
-            task_url = '#'
+            task_url = reverse('delete_task', kwargs={'project_id': project.id, 'task_id': task.id})
             tasks_list.append([
                 counter, 
                 task.name[:16],
@@ -714,3 +714,29 @@ class ReportView(BasicDataView):
 
         first_project = projects.first()
         return redirect('project_report', project_id=first_project.id)
+    
+
+class DeleteTaskView(View):
+    anonimys = AnonymousUser()
+
+    def post(self, request, project_id, task_id):
+        project = get_object_or_404(Project, id=project_id)
+        task = get_object_or_404(Task, id=task_id, project=project)
+
+        # Проверка прав на удаление задачи
+        if not (request.user == project.owner or 
+                project.team_members.filter(user=request.user, is_active=True).exists()):
+            
+            referer_url = request.META.get('HTTP_REFERER')
+            if referer_url and referer_url.startswith(request.build_absolute_uri('/')[:-1]):
+                return HttpResponseRedirect(referer_url)
+            else:
+                return redirect('dashboard')
+
+        task.delete()
+
+        referer_url = request.META.get('HTTP_REFERER')
+        if referer_url and referer_url.startswith(request.build_absolute_uri('/')[:-1]):
+            return HttpResponseRedirect(referer_url)
+        else:
+            return redirect('dashboard')
