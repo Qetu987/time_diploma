@@ -76,7 +76,7 @@ class TaskCreateAPIView(generics.CreateAPIView):
 class ProjectActivityAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def get(self, request):
         project_id = request.data.get('project_id')
 
         if not project_id:
